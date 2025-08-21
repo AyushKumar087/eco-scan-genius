@@ -2,87 +2,107 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
+/* Smart E-Waste Management System - Eco-Friendly Design System
+All colors MUST be HSL for proper theming.
 */
 
 @layer base {
   :root {
+    /* Eco-Friendly Color Palette */
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 158 40% 15%;
 
+    /* Green Primary Colors */
+    --primary: 142 71% 45%;
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 142 71% 65%;
+    --primary-dark: 142 71% 35%;
+
+    /* Nature-Inspired Secondary Colors */
+    --secondary: 120 25% 95%;
+    --secondary-foreground: 158 40% 20%;
+
+    /* Earth Tones */
+    --accent: 45 85% 85%;
+    --accent-foreground: 158 40% 25%;
+
+    /* Muted Natural Colors */
+    --muted: 120 15% 96%;
+    --muted-foreground: 158 25% 50%;
+
+    /* Card and Surface Colors */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 158 40% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 158 40% 15%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Status Colors */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+    --warning: 45 93% 65%;
+    --warning-foreground: 158 40% 15%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Interactive Elements */
+    --border: 142 30% 85%;
+    --input: 142 30% 90%;
+    --ring: 142 71% 45%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --radius: 0.8rem;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Eco-Friendly Gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-light)) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(var(--background)) 0%, hsl(var(--secondary)) 100%);
+    --gradient-accent: linear-gradient(90deg, hsl(var(--accent)) 0%, hsl(45 85% 90%) 100%);
+    --gradient-success: linear-gradient(135deg, hsl(var(--success)) 0%, hsl(142 71% 55%) 100%);
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Eco Shadows */
+    --shadow-eco: 0 10px 25px -5px hsl(var(--primary) / 0.1);
+    --shadow-card: 0 4px 12px -2px hsl(var(--primary) / 0.08);
+    --shadow-float: 0 20px 40px -10px hsl(var(--primary) / 0.15);
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
-    --radius: 0.5rem;
+    /* Animation Variables */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Dark Mode Eco Colors */
+    --background: 158 40% 8%;
+    --foreground: 120 15% 95%;
+    
+    --primary: 142 71% 55%;
+    --primary-light: 142 71% 65%;
+    --primary-dark: 142 71% 45%;
+    
+    --card: 158 35% 12%;
+    --card-foreground: 120 15% 95%;
+    
+    --secondary: 158 25% 15%;
+    --secondary-foreground: 120 15% 85%;
+    
+    --muted: 158 25% 18%;
+    --muted-foreground: 120 15% 65%;
+    
+    /* Dark Gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-light)) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(var(--card)) 0%, hsl(var(--secondary)) 100%);
+    --shadow-eco: 0 10px 25px -5px hsl(var(--primary) / 0.2);
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --border: 158 25% 22%;
+    --input: 158 25% 18%;
+    --ring: 142 71% 55%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -92,6 +112,47 @@ All colors MUST be HSL.
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+}
+
+/* Eco-Friendly Animations */
+@keyframes leaf-float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(2deg); }
+}
+
+@keyframes eco-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in-scale {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@layer components {
+  /* Eco-Friendly Utility Classes */
+  .gradient-hero { background: var(--gradient-hero); }
+  .gradient-card { background: var(--gradient-card); }
+  .gradient-accent { background: var(--gradient-accent); }
+  .gradient-success { background: var(--gradient-success); }
+  
+  .shadow-eco { box-shadow: var(--shadow-eco); }
+  .shadow-card { box-shadow: var(--shadow-card); }
+  .shadow-float { box-shadow: var(--shadow-float); }
+  
+  .animate-leaf-float { animation: leaf-float 3s ease-in-out infinite; }
+  .animate-eco-pulse { animation: eco-pulse 2s ease-in-out infinite; }
+  .animate-slide-up { animation: slide-up 0.6s ease-out forwards; }
+  .animate-fade-in-scale { animation: fade-in-scale 0.4s ease-out forwards; }
+  
+  .transition-smooth { transition: var(--transition-smooth); }
+  .transition-bounce { transition: var(--transition-bounce); }
 }
 
 @layer base {
