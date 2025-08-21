@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Recycle, Leaf } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Menu, X, Recycle, Leaf, LogOut } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
 
   const navItems = [
     { href: '/', label: 'Home' },
@@ -53,12 +56,29 @@ const Navigation = () => {
 
           {/* CTA Button */}
           <div className="hidden md:flex items-center space-x-4">
-            <Button variant="outline" size="sm" asChild>
-              <Link to="/submit">Submit E-Waste</Link>
-            </Button>
-            <Button size="sm" className="gradient-hero" asChild>
-              <Link to="/dashboard">Dashboard</Link>
-            </Button>
+            {user ? (
+              <>
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/submit">Submit E-Waste</Link>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    signOut();
+                    navigate('/');
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <Button size="sm" className="gradient-hero" asChild>
+                <Link to="/auth">Sign In</Link>
+              </Button>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -93,12 +113,29 @@ const Navigation = () => {
                 </Link>
               ))}
               <div className="flex flex-col space-y-2 pt-4 border-t border-border">
-                <Button variant="outline" asChild>
-                  <Link to="/submit" onClick={() => setIsOpen(false)}>Submit E-Waste</Link>
-                </Button>
-                <Button className="gradient-hero" asChild>
-                  <Link to="/dashboard" onClick={() => setIsOpen(false)}>Dashboard</Link>
-                </Button>
+                {user ? (
+                  <>
+                    <Button variant="outline" asChild>
+                      <Link to="/submit" onClick={() => setIsOpen(false)}>Submit E-Waste</Link>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      onClick={() => {
+                        signOut();
+                        navigate('/');
+                        setIsOpen(false);
+                      }}
+                      className="flex items-center gap-2"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Sign Out
+                    </Button>
+                  </>
+                ) : (
+                  <Button className="gradient-hero" asChild>
+                    <Link to="/auth" onClick={() => setIsOpen(false)}>Sign In</Link>
+                  </Button>
+                )}
               </div>
             </div>
           </div>

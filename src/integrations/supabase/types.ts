@@ -14,7 +14,193 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      compliance_reports: {
+        Row: {
+          created_at: string
+          file_url: string | null
+          id: string
+          report_data: Json | null
+          report_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          file_url?: string | null
+          id?: string
+          report_data?: Json | null
+          report_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          file_url?: string | null
+          id?: string
+          report_data?: Json | null
+          report_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      e_waste_items: {
+        Row: {
+          ai_classification: string | null
+          category: string
+          co2_saved: number | null
+          condition: string
+          created_at: string
+          department: string
+          estimated_value: number | null
+          id: string
+          image_url: string | null
+          item_name: string
+          status: string | null
+          updated_at: string
+          user_id: string
+          weight_kg: number | null
+        }
+        Insert: {
+          ai_classification?: string | null
+          category: string
+          co2_saved?: number | null
+          condition: string
+          created_at?: string
+          department: string
+          estimated_value?: number | null
+          id?: string
+          image_url?: string | null
+          item_name: string
+          status?: string | null
+          updated_at?: string
+          user_id: string
+          weight_kg?: number | null
+        }
+        Update: {
+          ai_classification?: string | null
+          category?: string
+          co2_saved?: number | null
+          condition?: string
+          created_at?: string
+          department?: string
+          estimated_value?: number | null
+          id?: string
+          image_url?: string | null
+          item_name?: string
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+          weight_kg?: number | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          department: string | null
+          full_name: string | null
+          id: string
+          points: number | null
+          total_submissions: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          department?: string | null
+          full_name?: string | null
+          id?: string
+          points?: number | null
+          total_submissions?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          department?: string | null
+          full_name?: string | null
+          id?: string
+          points?: number | null
+          total_submissions?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      qr_codes: {
+        Row: {
+          created_at: string
+          id: string
+          item_id: string
+          last_scanned_at: string | null
+          location: string | null
+          qr_code_data: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_id: string
+          last_scanned_at?: string | null
+          location?: string | null
+          qr_code_data: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_id?: string
+          last_scanned_at?: string | null
+          location?: string | null
+          qr_code_data?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qr_codes_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "e_waste_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vendor_pickups: {
+        Row: {
+          created_at: string
+          id: string
+          item_id: string
+          pickup_date: string
+          pickup_time: string
+          status: string | null
+          vendor_name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_id: string
+          pickup_date: string
+          pickup_time: string
+          status?: string | null
+          vendor_name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_id?: string
+          pickup_date?: string
+          pickup_time?: string
+          status?: string | null
+          vendor_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendor_pickups_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "e_waste_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

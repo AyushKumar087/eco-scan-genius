@@ -100,12 +100,12 @@ const Index = () => {
               
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button size="lg" className="gradient-hero text-white font-semibold shadow-float" asChild>
-                  <Link to="/submit">
-                    Submit E-Waste <ArrowRight className="ml-2 h-5 w-5" />
+                  <Link to="/auth">
+                    Get Started <ArrowRight className="ml-2 h-5 w-5" />
                   </Link>
                 </Button>
                 <Button size="lg" variant="outline" className="shadow-card" asChild>
-                  <Link to="/dashboard">View Dashboard</Link>
+                  <Link to="/about">Learn More</Link>
                 </Button>
               </div>
 
@@ -247,7 +247,7 @@ const Index = () => {
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" variant="secondary" className="font-semibold" asChild>
-                <Link to="/submit">Start Submitting E-Waste</Link>
+                <Link to="/auth">Get Started Today</Link>
               </Button>
               <Button size="lg" variant="outline" className="bg-transparent border-white text-white hover:bg-white hover:text-primary" asChild>
                 <Link to="/about">Learn More About Us</Link>

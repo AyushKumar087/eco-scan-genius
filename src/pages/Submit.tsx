@@ -1,35 +1,45 @@
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Upload, Smartphone, Laptop, Tablet, Printer, Camera, HeadphonesIcon, Monitor } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import Navigation from '@/components/Navigation';
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import Navigation from "@/components/Navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Textarea } from "@/components/ui/textarea";
+import { Upload, Package, Recycle, Smartphone, Laptop, Monitor, HeadphonesIcon, Camera, Printer, Tablet } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+
+interface FormData {
+  itemName: string;
+  category: string;
+  department: string;
+  condition: string;
+  description?: string;
+  weight?: number;
+  quantity: number;
+}
 
 const Submit = () => {
-  const { toast } = useToast();
-  const [formData, setFormData] = useState({
-    itemName: '',
-    category: '',
-    department: '',
-    condition: '',
-    description: '',
-    quantity: '1',
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<FormData>({
+    defaultValues: { quantity: 1 }
   });
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const { toast } = useToast();
+  const { user } = useAuth();
 
   const categories = [
-    { id: 'smartphones', label: 'Smartphones', icon: Smartphone },
-    { id: 'laptops', label: 'Laptops', icon: Laptop },
-    { id: 'tablets', label: 'Tablets', icon: Tablet },
-    { id: 'printers', label: 'Printers', icon: Printer },
-    { id: 'cameras', label: 'Cameras', icon: Camera },
-    { id: 'headphones', label: 'Headphones', icon: HeadphonesIcon },
-    { id: 'monitors', label: 'Monitors', icon: Monitor },
+    { id: 'Computers & Laptops', label: 'Laptops', icon: Laptop },
+    { id: 'Mobile Phones', label: 'Smartphones', icon: Smartphone },
+    { id: 'Monitors & TVs', label: 'Monitors', icon: Monitor },
+    { id: 'Cables & Accessories', label: 'Headphones', icon: HeadphonesIcon },
+    { id: 'Other Electronics', label: 'Cameras', icon: Camera },
+    { id: 'Other Electronics', label: 'Printers', icon: Printer },
+    { id: 'Batteries', label: 'Tablets', icon: Tablet },
   ];
 
   const departments = [
@@ -43,41 +53,120 @@ const Submit = () => {
     'Administration'
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!formData.itemName || !formData.category || !formData.department || !formData.condition) {
+  const onSubmit = async (data: FormData) => {
+    if (!user) {
       toast({
-        title: "Missing Information",
-        description: "Please fill in all required fields.",
+        title: "Authentication Required",
+        description: "Please log in to submit e-waste items",
         variant: "destructive",
       });
       return;
     }
 
-    // Simulate submission success
-    toast({
-      title: "E-Waste Submitted Successfully! ♻️",
-      description: "Your item has been registered and QR code generated.",
-    });
+    setIsSubmitting(true);
+    
+    try {
+      // Simulate AI classification
+      const aiClassifications = ["Recyclable", "Reusable", "Hazardous"];
+      const randomClassification = aiClassifications[Math.floor(Math.random() * aiClassifications.length)];
+      
+      // Calculate estimated values based on category and condition
+      const baseValues = {
+        "Computers & Laptops": 50,
+        "Mobile Phones": 25,
+        "Batteries": 5,
+        "Cables & Accessories": 2,
+        "Monitors & TVs": 30,
+        "Other Electronics": 15
+      };
+      
+      const conditionMultipliers = {
+        "working": 1.0,
+        "partial": 0.6,
+        "broken": 0.3
+      };
+      
+      const baseValue = baseValues[data.category as keyof typeof baseValues] || 15;
+      const multiplier = conditionMultipliers[data.condition as keyof typeof conditionMultipliers] || 0.5;
+      const estimatedValue = baseValue * multiplier * data.quantity;
+      const co2Saved = (data.weight || 1) * 2.5 * data.quantity; // Rough estimate: 2.5kg CO2 saved per kg recycled
 
-    // Reset form
-    setFormData({
-      itemName: '',
-      category: '',
-      department: '',
-      condition: '',
-      description: '',
-      quantity: '1',
-    });
-    setSelectedFile(null);
+      // Insert into database
+      const { data: insertedItem, error } = await supabase
+        .from("e_waste_items")
+        .insert({
+          user_id: user.id,
+          item_name: data.itemName,
+          category: data.category,
+          department: data.department,
+          condition: data.condition,
+          weight_kg: (data.weight || 1) * data.quantity,
+          ai_classification: randomClassification,
+          estimated_value: estimatedValue,
+          co2_saved: co2Saved,
+          status: "submitted"
+        })
+        .select()
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      // Generate QR code entry
+      const qrCodeData = `ewaste_${insertedItem.id}_${Date.now()}`;
+      await supabase
+        .from("qr_codes")
+        .insert({
+          item_id: insertedItem.id,
+          qr_code_data: qrCodeData,
+          location: "Storage"
+        });
+
+      // Update user profile points and submissions
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("points, total_submissions")
+        .eq("user_id", user.id)
+        .single();
+
+      if (profile) {
+        await supabase
+          .from("profiles")
+          .update({
+            points: (profile.points || 0) + Math.floor(estimatedValue),
+            total_submissions: (profile.total_submissions || 0) + 1
+          })
+          .eq("user_id", user.id);
+      }
+
+      toast({
+        title: "E-Waste Submitted Successfully!",
+        description: `Your ${data.itemName} has been classified as ${randomClassification}. You earned ${Math.floor(estimatedValue)} points!`,
+      });
+      
+      // Reset form
+      reset({ quantity: 1 });
+      setImageFile(null);
+    } catch (error: any) {
+      toast({
+        title: "Submission Failed",
+        description: error.message || "An error occurred while submitting your item",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0]);
+      setImageFile(e.target.files[0]);
     }
   };
+
+  const watchedCategory = watch("category");
+  const watchedCondition = watch("condition");
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-secondary to-accent">
@@ -108,7 +197,7 @@ const Submit = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 {/* Item Name & Quantity */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="md:col-span-2">
@@ -116,19 +205,20 @@ const Submit = () => {
                     <Input
                       id="itemName"
                       placeholder="e.g., iPhone 12, Dell Laptop XPS 13"
-                      value={formData.itemName}
-                      onChange={(e) => setFormData({ ...formData, itemName: e.target.value })}
+                      {...register("itemName", { required: "Item name is required" })}
                       className="mt-1"
                     />
+                    {errors.itemName && (
+                      <p className="text-sm text-destructive mt-1">{errors.itemName.message}</p>
+                    )}
                   </div>
                   <div>
-                    <Label htmlFor="quantity">Quantity</Label>
+                    <Label htmlFor="quantity">Quantity *</Label>
                     <Input
                       id="quantity"
                       type="number"
                       min="1"
-                      value={formData.quantity}
-                      onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
+                      {...register("quantity", { required: true, min: 1 })}
                       className="mt-1"
                     />
                   </div>
@@ -137,34 +227,33 @@ const Submit = () => {
                 {/* Category Selection */}
                 <div>
                   <Label>Category *</Label>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2">
-                    {categories.map((category) => {
-                      const IconComponent = category.icon;
-                      return (
-                        <button
-                          key={category.id}
-                          type="button"
-                          onClick={() => setFormData({ ...formData, category: category.id })}
-                          className={`p-4 rounded-lg border-2 transition-all duration-200 flex flex-col items-center gap-2 hover:scale-105 ${
-                            formData.category === category.id
-                              ? 'border-primary bg-primary/10 text-primary'
-                              : 'border-border hover:border-primary/50'
-                          }`}
-                        >
-                          <IconComponent className="h-6 w-6" />
-                          <span className="text-sm font-medium">{category.label}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
+                  <Select
+                    value={watchedCategory}
+                    onValueChange={(value) => setValue("category", value)}
+                  >
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Computers & Laptops">Computers & Laptops</SelectItem>
+                      <SelectItem value="Mobile Phones">Mobile Phones</SelectItem>
+                      <SelectItem value="Monitors & TVs">Monitors & TVs</SelectItem>
+                      <SelectItem value="Cables & Accessories">Cables & Accessories</SelectItem>
+                      <SelectItem value="Batteries">Batteries</SelectItem>
+                      <SelectItem value="Other Electronics">Other Electronics</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {errors.category && (
+                    <p className="text-sm text-destructive mt-1">Category is required</p>
+                  )}
                 </div>
 
                 {/* Department */}
                 <div>
                   <Label htmlFor="department">Department *</Label>
                   <Select
-                    value={formData.department}
-                    onValueChange={(value) => setFormData({ ...formData, department: value })}
+                    value={watch("department")}
+                    onValueChange={(value) => setValue("department", value)}
                   >
                     <SelectTrigger className="mt-1">
                       <SelectValue placeholder="Select your department" />
@@ -177,14 +266,17 @@ const Submit = () => {
                       ))}
                     </SelectContent>
                   </Select>
+                  {errors.department && (
+                    <p className="text-sm text-destructive mt-1">Department is required</p>
+                  )}
                 </div>
 
                 {/* Condition */}
                 <div>
                   <Label>Condition *</Label>
                   <RadioGroup
-                    value={formData.condition}
-                    onValueChange={(value) => setFormData({ ...formData, condition: value })}
+                    value={watchedCondition}
+                    onValueChange={(value) => setValue("condition", value)}
                     className="flex flex-wrap gap-6 mt-2"
                   >
                     <div className="flex items-center space-x-2">
@@ -200,6 +292,23 @@ const Submit = () => {
                       <Label htmlFor="broken">Not Working</Label>
                     </div>
                   </RadioGroup>
+                  {errors.condition && (
+                    <p className="text-sm text-destructive mt-1">Condition is required</p>
+                  )}
+                </div>
+
+                {/* Weight */}
+                <div>
+                  <Label htmlFor="weight">Estimated Weight (kg)</Label>
+                  <Input
+                    id="weight"
+                    type="number"
+                    step="0.1"
+                    min="0.1"
+                    placeholder="e.g., 2.5"
+                    {...register("weight", { valueAsNumber: true })}
+                    className="mt-1"
+                  />
                 </div>
 
                 {/* Description */}
@@ -208,8 +317,7 @@ const Submit = () => {
                   <Textarea
                     id="description"
                     placeholder="Additional details about the item condition, accessories included, etc."
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    {...register("description")}
                     className="mt-1"
                     rows={3}
                   />
@@ -233,7 +341,7 @@ const Submit = () => {
                       <div className="text-center">
                         <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
                         <p className="text-sm text-muted-foreground">
-                          {selectedFile ? selectedFile.name : 'Click to upload or drag and drop'}
+                          {imageFile ? imageFile.name : 'Click to upload or drag and drop'}
                         </p>
                         <p className="text-xs text-muted-foreground mt-1">
                           PNG, JPG up to 10MB
@@ -250,24 +358,20 @@ const Submit = () => {
                     variant="outline"
                     className="flex-1"
                     onClick={() => {
-                      setFormData({
-                        itemName: '',
-                        category: '',
-                        department: '',
-                        condition: '',
-                        description: '',
-                        quantity: '1',
-                      });
-                      setSelectedFile(null);
+                      reset({ quantity: 1 });
+                      setImageFile(null);
                     }}
+                    disabled={isSubmitting}
                   >
                     Reset Form
                   </Button>
-                  <Button
-                    type="submit"
-                    className="flex-1 gradient-hero text-white font-semibold"
+                  <Button 
+                    type="submit" 
+                    className="flex-1 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700"
+                    disabled={isSubmitting}
                   >
-                    Submit E-Waste Item
+                    <Package className="w-4 h-4 mr-2" />
+                    {isSubmitting ? "Submitting..." : "Submit E-Waste Item"}
                   </Button>
                 </div>
               </form>
